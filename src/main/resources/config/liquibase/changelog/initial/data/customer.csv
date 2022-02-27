@@ -1,0 +1,3 @@
+id;name;number;session_timeout_s;password_expiration;market;status;contract_start_date;contract_end_date;bd_owner;analysts;notes;created_by;last_modified_by
+1;TRSS;007;1800;90;GOVERNMENT;ACTIVE;2018-10-11;2019-10-11;the bd owner;analyst1, analyst2;notes...;system;system
+2;AIG;1234;3600;90;CORPORATE;ACTIVE;2018-10-11;2019-10-11;the bd owner;analyst3;notes.......;system;system

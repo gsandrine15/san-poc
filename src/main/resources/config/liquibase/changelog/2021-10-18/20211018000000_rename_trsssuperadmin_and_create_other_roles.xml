@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <changeSet id="20211018000000a" author="dls">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM jhi_role WHERE name IN ('USER', 'CUSTOMER_ADMIN');
+            </sqlCheck>
+        </preConditions>
+        <loadData encoding="UTF-8"
+                  file="config/liquibase/changelog/2021-10-18/data/roles.csv"
+                  separator=";"
+                  tableName="jhi_role">
+        </loadData>
+    </changeSet>
+    <changeSet id="20211018000000b" author="dls">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM jhi_role WHERE name IN ('ADMIN');
+            </sqlCheck>
+        </preConditions>
+        <dropForeignKeyConstraint baseTableName="jhi_user_role" constraintName="fk_user_role_role_name"/>
+        <dropForeignKeyConstraint baseTableName="jhi_user_role" constraintName="fk_user_role_user_id"/>
+        <update tableName="jhi_role">
+            <column name="name" value="ADMIN" />
+            <where>name = 'TRSS_SUPER_ADMIN'</where>
+        </update>
+        <update tableName="jhi_user_role">
+            <column name="role_name" value="ADMIN" />
+            <where>role_name = 'TRSS_SUPER_ADMIN'</where>
+        </update>
+        <addForeignKeyConstraint baseColumnNames="role_name"
+                                 baseTableName="jhi_user_role"
+                                 constraintName="fk_user_role_role_name"
+                                 referencedColumnNames="name"
+                                 referencedTableName="jhi_role"/>
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="jhi_user_role"
+                                 constraintName="fk_user_role_user_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"/>
+    </changeSet>
+</databaseChangeLog>

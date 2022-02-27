@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <changeSet id="20210625000001" author="dls">
+        <createTable tableName="jhi_role_authority_mapping">
+            <column name="role_name" type="varchar(50)" />
+            <column name="authority_name" type="varchar(50)" />
+        </createTable>
+        <createIndex tableName="jhi_role_authority_mapping" indexName="idx_jhi_role_authority_mapping_role" unique="false">
+            <column name="role_name" type="varchar(50)" />
+        </createIndex>
+        <createIndex tableName="jhi_role_authority_mapping" indexName="idx_jhi_role_authority_mapping_authority" unique="false">
+            <column name="authority_name" type="varchar(50)" />
+        </createIndex>
+        <addForeignKeyConstraint baseTableName="jhi_role_authority_mapping"
+                                 baseColumnNames="role_name"
+                                 constraintName="fk_role_authority_mapping_role"
+                                 referencedTableName="jhi_role"
+                                 referencedColumnNames="name" />
+        <addForeignKeyConstraint baseTableName="jhi_role_authority_mapping"
+                                 baseColumnNames="authority_name"
+                                 constraintName="fk_role_authority_mapping_authority"
+                                 referencedTableName="jhi_authority"
+                                 referencedColumnNames="name" />
+    </changeSet>
+    <changeSet id="20210625000002" author="dls">
+        <addColumn tableName="jhi_role">
+            <column name="default_translation" type="varchar(50)" defaultValue=""/>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

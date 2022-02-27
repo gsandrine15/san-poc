@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <include file="config/liquibase/changelog/initial/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/initial/20180830181458_added_entity_Customer.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/initial/20180905201607_added_entity_Application.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/initial/20180905205316_added_entity_CustomerApplication.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/initial/20180906105215_added_entity_UserApplication.xml" relativeToChangelogFile="false"/>
+    <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
+    <include file="config/liquibase/changelog/initial/20180905205316_added_entity_constraints_CustomerApplication.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/initial/20180906105215_added_entity_constraints_UserApplication.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2018-11-28/20181128000000_RI-77_insert_additional_applications.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2019-01-23/20190123000000_RI-190_tipdemo_app.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2019-10-04/20191004000000_insert_lynx_application.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2020-01-02/20200102000000_update_lynx_application.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2020-02-04/20200204000000_insert_ams_application.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2020-08-05/20200805000000_insert_amfeed_application.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2021-06-09/20210609000000_insert_additional_authorities.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2021-07-21/20210721000000_delete_bi_apps_and_customer.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2021-06-24/20210624000000_creating_role_table.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2021-06-25/20210625000000_creating_role_authority_mapping_table.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/2021-07-09/20210709000000_creating_new_authorities.xml" relativeToChangelogFile="false" />
+    <include file="config/liquibase/changelog/2021-07-28/20210728000000_create_trigger_on_user_soft_delete.xml" relativeToChangelogFile="false" />
+    <include file="config/liquibase/changelog/2021-07-29/20210729000000_delete_existing_roles_and_reassign_users.xml" relativeToChangelogFile="false" />
+    <include file="config/liquibase/changelog/2021-08-05/20210805000000_create_amf_authorities.xml" relativeToChangelogFile="false" />
+    <include file="config/liquibase/changelog/2021-10-18/20211018000000_rename_trsssuperadmin_and_create_other_roles.xml" relativeToChangelogFile="false" />
+    <include file="config/liquibase/changelog/2021-10-18/20211021000000_add_customer_id_to_roles.xml" relativeToChangelogFile="false" />
+    <include file="config/liquibase/changelog/2021-12-16/20211216000000_add_amf_admin_tools_to_authorities.xml" relativeToChangelogFile="false" />
+    <include file="config/liquibase/changelog/2021-12-14/20211214000000_insert_article_viewer_application.xml" relativeToChangelogFile="false" />
+    <include file="config/liquibase/changelog/2022-02-17/20220217000000_add_audit_fields_to_roles.xml" relativeToChangelogFile="false" />
+    <!--
+        NOTE: you must include changes to this file in int_test/h2_master.xml as well. Please validate that integration tests are able to run. If
+        you must create an equivalent h2 script in int_test/changelog and reference it in h2_master.xml
+     -->
+    <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
+</databaseChangeLog>

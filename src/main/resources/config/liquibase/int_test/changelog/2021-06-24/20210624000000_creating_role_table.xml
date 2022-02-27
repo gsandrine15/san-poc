@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+    if jni_user_role DNE
+        1. Drop foreign keys to jhi_user_authority
+        2. Map in jhi_user_authority:
+            a. ROLE_ADMIN -> TRSS_SUPER_ADMIN
+            b. ROLE_CUSTOMER_ADMIN -> CLIENT_ADMIN
+            c. ROLE_USER -> TRSS_VIEW_EDIT_USER
+        3. rename jhi_user_authority to jhi_user_role
+        4. erase and load jhi_authority
+        5. create and load jhi_role
+        6. add foreign keys on jhi_user_role
+        7. create jhi_user_authority and load
+        8. add foreign keys for jhi_user_authority
+    -->
+    <changeSet id="20210624000001" author="dls"> <!-- 1. Drop foreign keys to jhi_user_authority -->
+        <preConditions onFail="HALT">
+            <dbms type="mysql, h2"/>
+<!--            <runningAs username="bi_auth"/>-->
+            <foreignKeyConstraintExists foreignKeyTableName="jhi_user_authority" foreignKeyName="fk_authority_name" />
+            <foreignKeyConstraintExists foreignKeyTableName="jhi_user_authority" foreignKeyName="fk_user_id" />
+        </preConditions>
+        <dropForeignKeyConstraint baseTableName="jhi_user_authority" constraintName="fk_authority_name"/>
+        <dropForeignKeyConstraint baseTableName="jhi_user_authority" constraintName="fk_user_id"/>
+    </changeSet>
+    <!-- 2. Map in jhi_user_authority:
+            a. ROLE_ADMIN -> TRSS_SUPER_ADMIN
+            b. ROLE_CUSTOMER_ADMIN -> CLIENT_ADMIN
+            c. ROLE_USER -> TRSS_VIEW_EDIT_USER -->
+    <changeSet id="20210624000002" author="dls">
+        <renameColumn tableName="jhi_user_authority" oldColumnName="authority_name" newColumnName="role_name" columnDataType="varchar(50)"/>
+        <update tableName="jhi_user_authority">
+            <column name="role_name" value="TRSS_SUPER_ADMIN"/>
+            <where>role_name = 'ROLE_ADMIN'</where>
+        </update>
+        <update tableName="jhi_user_authority">
+            <column name="role_name" value="CLIENT_ADMIN"/>
+            <where>role_name = 'ROLE_CUSTOMER_ADMIN'</where>
+        </update>
+        <update tableName="jhi_user_authority">
+            <column name="role_name" value="TRSS_VIEW_EDIT_USER"/>
+            <where>role_name = 'ROLE_USER'</where>
+        </update>
+    </changeSet>
+    <!--  3. rename jhi_user_authority to jhi_user_role -->
+    <changeSet id="20210624000003" author="dls">
+        <renameTable oldTableName="jhi_user_authority" newTableName="jhi_user_role"/>
+    </changeSet>
+    <!-- 4. erase and load jhi_authority -->
+    <changeSet id="20210624000004" author="dls">
+        <delete tableName="jhi_authority" />
+        <loadData encoding="UTF-8"
+                  file="config/liquibase/changelog/2021-06-24/data/authorities.csv"
+                  separator=";"
+                  tableName="jhi_authority"/>
+    </changeSet>
+    <!-- 5. create and load jhi_role -->
+    <changeSet id="20210624000005" author="dls">
+        <createTable tableName="jhi_role" >
+            <column name="name" type="varchar(50)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+        </createTable>
+        <loadData encoding="UTF-8"
+                  file="config/liquibase/changelog/2021-06-24/data/roles.csv"
+                  separator=";"
+                  tableName="jhi_role">
+        </loadData>
+    </changeSet>
+    <!--  6. add foreign keys on jhi_user_role -->
+    <changeSet id="20210624000006" author="dls">
+        <addForeignKeyConstraint baseColumnNames="role_name"
+                                 baseTableName="jhi_user_role"
+                                 constraintName="fk_user_role_role_name"
+                                 referencedColumnNames="name"
+                                 referencedTableName="jhi_role"/>
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="jhi_user_role"
+                                 constraintName="fk_user_role_user_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"/>
+    </changeSet>
+    <!-- 7. create jhi_user_authority and load -->
+    <changeSet id="20210624000007" author="dls">
+        <createTable tableName="jhi_user_authority">
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="authority_name" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="authority_name"
+                                 baseTableName="jhi_user_authority"
+                                 constraintName="fk_user_authority_authority_name"
+                                 referencedColumnNames="name"
+                                 referencedTableName="jhi_authority"/>
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="jhi_user_authority"
+                                 constraintName="fk_user_authority_user_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"/>
+    </changeSet>
+    <!-- 8. add foreign keys for jhi_user_authority -->
+    <changeSet id="20210624000008" author="dls">
+        <addForeignKeyConstraint baseColumnNames="authority_name"
+                                 baseTableName="jhi_user_authority"
+                                 constraintName="fk_authority_name"
+                                 referencedColumnNames="name"
+                                 referencedTableName="jhi_authority"/>
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="jhi_user_authority"
+                                 constraintName="fk_user_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"/>
+    </changeSet>
+
+</databaseChangeLog>

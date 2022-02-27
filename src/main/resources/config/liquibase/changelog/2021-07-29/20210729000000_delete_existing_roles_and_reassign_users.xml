@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <changeSet id="20210729000000a" author="dls">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM jhi_role WHERE name = 'NO_PERMISSIONS';
+            </sqlCheck>
+        </preConditions>
+        <loadData encoding="UTF-8"
+                  file="config/liquibase/changelog/2021-07-29/data/roles.csv"
+                  separator=";"
+                  tableName="jhi_role">
+        </loadData>
+        <update tableName="jhi_user_role">
+            <column name="role_name" value="NO_PERMISSIONS" />
+            <where>role_name != 'TRSS_SUPER_ADMIN'</where>
+        </update>
+        <delete tableName="jhi_role">
+            <where>name NOT IN ('TRSS_SUPER_ADMIN', 'NO_PERMISSIONS')</where>
+        </delete>
+    </changeSet>
+    <changeSet id="20210729000000" author="dls" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM jhi_role_authority_mapping WHERE authority_name in ('INBOX',
+                'INBOX_CREATE_FOLDERS',
+                'INBOX_EDIT_FOLDERS',
+                'INBOX_DELETE_FOLDERS',
+                'INBOX_PROVIDE_FEEDBACK',
+                'INBOX_VIEW_ALL_FOLDERS',
+                'INBOX_VIEW_MY_FOLDERS',
+                'INBOX_EDIT_ALL_FACTS',
+                'INBOX_EDIT_MY_FACTS',
+                'INBOX_RESOLVE_ALL_FACTS',
+                'INBOX_RESOLVE_MY_FACTS',
+                'ENTITY_MANAGEMENT',
+                'ENTITY_MANAGEMENT_CREATE_ENTITY_LISTS',
+                'ENTITY_MANAGEMENT_VIEW_ALL_ENTITY_LISTS',
+                'ENTITY_MANAGEMENT_VIEW_MY_ENTITY_LISTS',
+                'ENTITY_MANAGEMENT_EDIT_ALL_ENTITY_LISTS',
+                'ENTITY_MANAGEMENT_EDIT_MY_ENTITY_LISTS',
+                'ENTITY_MANAGEMENT_DELETE_ALL_ENTITY_LISTS',
+                'ENTITY_MANAGEMENT_DELETE_MY_ENTITY_LISTS',
+                'OUTBOX',
+                'OUTBOX_EDIT_ALERTS',
+                'OUTBOX_REMOVE_ALERTS',
+                'OUTBOX_EXPORT_ALERTS',
+                'SEARCH',
+                'TRASH',
+                'ADMIN_TOOLS',
+                'ADMIN_CONSOLE');
+            </sqlCheck>
+        </preConditions>
+        <delete tableName="jhi_role_authority_mapping" />
+    </changeSet>
+    <changeSet id="20210729000001" author="dls" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="jhi_role" columnName="default_translation"/>
+        </preConditions>
+        <dropColumn tableName="jhi_role" columnName="default_translation"></dropColumn>
+    </changeSet>
+</databaseChangeLog>

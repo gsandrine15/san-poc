@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="20210709000000" author="dls">
+        <delete tableName="jhi_user_authority"/>
+        <delete tableName="jhi_authority"/>
+        <dropTable tableName="jhi_user_authority" />
+        <loadData encoding="UTF-8"
+                  file="config/liquibase/changelog/2021-07-09/data/authorities.csv"
+                  separator=";"
+                  tableName="jhi_authority">
+        </loadData>
+    </changeSet>
+
+</databaseChangeLog>

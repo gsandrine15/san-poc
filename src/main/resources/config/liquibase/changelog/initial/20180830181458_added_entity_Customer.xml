@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <property name="now" value="now()" dbms="h2"/>
+
+    <property name="now" value="now()" dbms="mysql"/>
+    <property name="autoIncrement" value="true"/>
+
+    <property name="floatType" value="float4" dbms="postgresql, h2"/>
+    <property name="floatType" value="float" dbms="mysql, oracle, mssql"/>
+
+    <!--
+        Added the entity Customer.
+    -->
+    <changeSet id="20180830181458-1" author="jhipster">
+        <createTable tableName="customer">
+            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="name" type="varchar(50)">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="number" type="varchar(20)">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="session_timeout_s" type="bigint(20)" defaultValue="1800">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="password_expiration" type="bigint(20)" defaultValue="90">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="market" type="varchar(20)">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="status" type="varchar(20)">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="contract_start_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="contract_end_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="bd_owner" type="text">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="analysts" type="text">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="notes" type="text">
+            </column>
+
+            <column name="deleted" type="boolean" defaultValueBoolean="false"/>
+
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="timestamp"/>
+
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
+        </createTable>
+
+        <loadData encoding="UTF-8"
+                  file="config/liquibase/changelog/initial/data/customer.csv"
+                  separator=";"
+                  tableName="customer">
+            <column name="activated" type="boolean"/>
+            <column name="created_date" type="timestamp"/>
+        </loadData>
+
+        <createTable tableName="user_detail">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="customer_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="phone_number" type="varchar(50)"></column>
+            <column name="password_date" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deleted" type="boolean" defaultValueBoolean="false"/>
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="timestamp"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseColumnNames="customer_id"
+                                 baseTableName="user_detail"
+                                 constraintName="fk_user_detail_customer_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="customer"/>
+
+        <loadData encoding="UTF-8"
+                  file="config/liquibase/changelog/initial/data/user_detail.csv"
+                  separator=";"
+                  tableName="user_detail">
+            <column name="created_date" type="timestamp"/>
+        </loadData>
+
+        <createView viewName="user_with_detail" replaceIfExists="true">
+            select U.*, UD.customer_id, UD.phone_number, UD.password_date, UD.deleted from jhi_user U, user_detail UD where U.id = UD.id
+        </createView>
+
+    </changeSet>
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
+</databaseChangeLog>

@@ -1,0 +1,4 @@
+id;code;name;description;preview;image;link;system_assigned
+1;console;Admin Console;The Admin Console;;;/admin-console/user-management;true
+2;news+rss;News & RSS;Real-time News Search, Aggregation, and Alerting;The News & RSS App provides users with enhanced news search capabilities with access to 12,000 publication sources. The ability to aggregate news based on specific criteria streamlines research, and alerting features save analysts time in the cultivation and curation of news.;;/news-and-rss/channels;false
+3;companydd;Company Due Diligence;Basic Due Diligence Reports;The Company Due Diligence App streamlines the initial due diligence and company research process and provides key background information for public companies in an automated report. The batch search option offers the ability to run multiple reports with one click, based on company name.;;/company-due-diligence;false

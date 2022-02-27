@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <property name="autoIncrement" value="true"/>
+
+<!--    rough draft of ideas -->
+    <!--    2. drop primary key on jhi_role-->
+    <!--    3. add auto increment primary key id to jhi_role-->
+    <!--    4. add role_id to jhi_role_authority_mapping-->
+    <!--    5. add foreign key constraint involving jhi_role  (alter table  `jhi_role_authority_mapping2` add CONSTRAINT `fk_role_authority_mapping_role2` FOREIGN KEY (`role_id`) REFERENCES `jhi_role2` (`id`))-->
+    <!--    6. populate role_id's in jhi_role_authority_mapping-->
+    <!--    7. drop column role_name from jhi_role_authority_mapping-->
+    <!--    8. add customer_id to jhi_role-->
+    <!--    9. set CUSTOMER_ADMIN and USER in jhi_role to have -1 customer_id-->
+    <!--    10. set ADMIN in jhi_role to have -2 customer_id-->
+    <!--    11. set all other customer_id's in jhi_role to TRSS's customer_id-->
+    <!--    12. ???? -->
+    <!--    13. add role_id to jhi_user_role-->
+    <!--    14. drop foreign key fk_user_role_role_name from jhi_user_role-->
+    <!--    15. set role_id for jhi_user_role-->
+    <!--    16. replace primary key removing role_name from jhi_user_role-->
+    <!--    17. remove role_id from jhi_user_role-->
+    <!--    18. add foreign key constraint fk_user_role_role_id on jhi_user_role-->
+
+
+    <!--    1. drop foreign key constraint involving jhi_role (alter table jhi_role_authority_mapping2 drop foreign key `fk_role_authority_mapping_role2`)-->
+    <changeSet id="20211021000000-1" author="dls">
+        <preConditions onFail="MARK_RAN">
+            <foreignKeyConstraintExists foreignKeyName="fk_role_authority_mapping_role" foreignKeyTableName="jhi_role_authority_mapping" />
+        </preConditions>
+        <rollback>
+            <addForeignKeyConstraint baseTableName="jhi_role_authority_mapping" baseColumnNames="role_name" constraintName="fk_role_authority_mapping_role" referencedTableName="jhi_role"
+                                     referencedColumnNames="name" />
+        </rollback>
+        <dropForeignKeyConstraint baseTableName="jhi_role_authority_mapping" constraintName="fk_role_authority_mapping_role" />
+    </changeSet>
+
+    <!--    3. add foreign key fk_role_customer_id -->
+    <changeSet id="20211021000000-2" author="dls">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="jhi_role" columnName="customer_id" />
+            </not>
+        </preConditions>
+        <rollback>
+            <dropColumn tableName="jhi_role" columnName="customer_id" />
+        </rollback>
+        <addColumn tableName="jhi_role">
+            <column name="customer_id" type="bigint" />
+        </addColumn>
+        <sql>
+            update jhi_role SET customer_id = 1;
+        </sql>
+    </changeSet>
+
+    <!--    4. drop foreign key fk_user_role_role_name from jhi_user_role-->
+    <changeSet id="20211021000000-3" author="dls">
+        <preConditions onFail="MARK_RAN">
+            <foreignKeyConstraintExists foreignKeyTableName="jhi_user_role" foreignKeyName="fk_user_role_role_name" />
+        </preConditions>
+        <rollback>
+            <addForeignKeyConstraint baseTableName="jhi_user_role" baseColumnNames="role_name" constraintName="fk_user_role_role_name" referencedTableName="jhi_role"
+                                     referencedColumnNames="name" />
+        </rollback>
+        <dropForeignKeyConstraint baseTableName="jhi_user_role" constraintName="fk_user_role_role_name" />
+    </changeSet>
+
+    <!--    5. add auto increment primary key id to jhi_role-->
+    <changeSet id="20211021000000-4" author="dls">
+        <preConditions onFail="MARK_RAN">
+            <primaryKeyExists tableName="jhi_role" />
+            <not>
+                <columnExists tableName="jhi_role" columnName="id"/>
+            </not>
+        </preConditions>
+        <rollback>
+            <sql>
+                ALTER TABLE jhi_role MODIFY id INT NOT NULL;
+            </sql>
+            <sql>
+                ALTER TABLE jhi_role
+                DROP PRIMARY KEY,
+                ADD PRIMARY KEY (name);
+            </sql>
+            <dropColumn tableName="jhi_role" columnName="id" />
+        </rollback>
+        <dropPrimaryKey tableName="jhi_role"/>
+        <addColumn tableName="jhi_role">
+            <column name="id" type="bigint" autoIncrement="true"/>
+        </addColumn>
+        <addPrimaryKey tableName="jhi_role" columnNames="id" />
+    </changeSet>
+
+    <changeSet id="20211021000000-4b" author="dls">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sqlCheck expectedResult="0">
+                    SELECT COUNT(1) FROM customer WHERE name != 'TRSS'
+                </sqlCheck>
+            </not>
+        </preConditions>
+        <rollback>
+            <delete tableName="jhi_role">
+                <where>name in ('CUSTOMER_ADMIN', 'USER')</where>
+            </delete>
+        </rollback>
+        <sql>
+            insert into jhi_role (name, customer_id) SELECT 'CUSTOMER_ADMIN', id from customer c where c.name != 'TRSS';
+        </sql>
+
+        <sql dbms="h2">
+            insert into jhi_role (name, customer_id) SELECT 'USER', id from customer c where c.name != 'TRSS';
+        </sql>
+    </changeSet>
+
+    <!--    5. add role_id to jhi_role_authority_mapping-->
+    <changeSet id="20211021000000-5" author="dls">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="jhi_role_authority_mapping" columnName="role_id" />
+            </not>
+        </preConditions>
+        <rollback>
+            <dropColumn tableName="jhi_role_authority_mapping" columnName="role_id" />
+        </rollback>
+        <addColumn tableName="jhi_role_authority_mapping">
+            <column name="role_id" type="bigint"/>
+        </addColumn>
+    </changeSet>
+
+    <!--    6. add foreign key constraint involving jhi_role  (alter table  `jhi_role_authority_mapping2` add CONSTRAINT `fk_role_authority_mapping_role2` FOREIGN KEY (`role_id`) REFERENCES `jhi_role2` (`id`))-->
+    <changeSet id="20211021000000-6" author="dls">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyTableName="jhi_role_authority_mapping" foreignKeyName="fk_role_authority_mapping_role" />
+            </not>
+        </preConditions>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="jhi_role_authority_mapping" constraintName="fk_role_authority_mapping_role" />
+        </rollback>
+        <addForeignKeyConstraint baseTableName="jhi_role_authority_mapping"
+                                 baseColumnNames="role_id"
+                                 constraintName="fk_role_authority_mapping_role"
+                                 referencedTableName="jhi_role"
+                                 referencedColumnNames="id" />
+    </changeSet>
+
+    <!--    7. populate role_id's in jhi_role_authority_mapping-->
+    <changeSet id="20211021000000-7" author="dls">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="jhi_role_authority_mapping" columnName="role_id" />
+        </preConditions>
+        <rollback>
+            <sql>
+                update `jhi_role_authority_mapping` jram, `jhi_role` jr set jram.role_name = jr.name where jram.role_id = jr.id;
+            </sql>
+        </rollback>
+        <sql dbms="h2">
+            update jhi_role_authority_mapping jram
+            set jram.role_id = (select jr.id from jhi_role jr where jram.role_name = jr.name)
+            where exists
+               (select * from jhi_role jr where jram.role_name = jr.name);
+        </sql>
+    </changeSet>
+
+    <!--    8. drop column role_name from jhi_role_authority_mapping-->
+    <changeSet id="20211021000000-8" author="dls">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="jhi_role_authority_mapping" columnName="role_name" />
+        </preConditions>
+        <rollback>
+            <addColumn tableName="jhi_role_authority_mapping">
+                <column name="role_name" type="varchar(50)" />
+            </addColumn>
+            <createIndex tableName="jhi_role_authority_mapping" indexName="idx_jhi_role_authority_mapping_role">
+                <column name="role_name" type="varchar(50)" />
+            </createIndex>
+        </rollback>
+        <dropIndex tableName="jhi_role_authority_mapping" indexName="idx_jhi_role_authority_mapping_role" />
+        <dropColumn tableName="jhi_role_authority_mapping" columnName="role_name" />
+    </changeSet>
+
+
+    <!--    13. add role_id to jhi_user_role-->
+    <changeSet id="20211021000000-9" author="dls">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="jhi_user_role" columnName="role_id"/>
+            </not>
+        </preConditions>
+        <rollback>
+            <dropColumn tableName="jhi_user_role" columnName="role_id"/>
+        </rollback>
+        <addColumn tableName="jhi_user_role">
+            <column name="role_id" type="bigint" defaultValue="-1" />
+        </addColumn>
+        <addNotNullConstraint tableName="jhi_user_role" columnDataType="bigint" columnName="role_id"/>
+    </changeSet>
+
+
+    <!--    15. set role_id for jhi_user_role-->
+    <changeSet id="20211021000000-10" author="dls">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                select count(1) from jhi_user_role where role_id != -1;
+            </sqlCheck>
+        </preConditions>
+        <rollback>
+            <comment>Nothing needed</comment>
+        </rollback>
+        <sql dbms="h2">
+            update jhi_user_role jur
+                set jur.role_id = (select jr.id from jhi_role jr where jur.role_name = jr.name)
+                  where exists (select * from jhi_role jr where jur.role_name = jr.name);
+        </sql>
+    </changeSet>
+
+    <!--    16. replace primary key removing role_name from jhi_user_role-->
+    <changeSet id="20211021000000-11" author="dls">
+        <preConditions onFail="MARK_RAN">
+            <primaryKeyExists tableName="jhi_user_role" />
+        </preConditions>
+        <rollback>
+            <sql>
+                ALTER TABLE `jhi_user_role`
+                DROP PRIMARY KEY, add primary key (user_id, role_name);
+            </sql>
+        </rollback>
+        <dropPrimaryKey tableName="jhi_user_role"/>
+        <addPrimaryKey tableName="jhi_user_role" columnNames="user_id,role_id" />
+    </changeSet>
+
+    <!--    17. remove role_id from jhi_user_role-->
+    <changeSet id="20211021000000-12" author="dls">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="jhi_user_role" columnName="role_name"/>
+        </preConditions>
+        <rollback>
+            <addColumn tableName="jhi_user_role">
+                <column name="role_name" type="varchar(50)"/>
+            </addColumn>
+            <sql>
+                UPDATE jhi_user_role jur, jhi_role jr SET jur.role_name = jr.name WHERE jur.role_id = jr.id;
+            </sql>
+        </rollback>
+        <dropColumn tableName="jhi_user_role" columnName="role_name" />
+    </changeSet>
+
+    <!--    18. add foreign key constraint fk_user_role_role_id on jhi_user_role-->
+    <changeSet id="20211021000000-13" author="dls">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyTableName="jhi_user_role" foreignKeyName="fk_user_role_role_id" />
+            </not>
+        </preConditions>
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="jhi_user_role" constraintName="fk_user_role_role_id"/>
+        </rollback>
+        <addForeignKeyConstraint baseTableName="jhi_user_role" baseColumnNames="role_id" constraintName="fk_user_role_role_id" referencedTableName="jhi_role"
+                                 referencedColumnNames="id" />
+    </changeSet>
+
+    <!--    19. add foreign key constraint fk_user_role_user_id on jhi_user_role is not found-->
+    <changeSet id="20211021000000-14" author="dls">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyTableName="jhi_user_role" foreignKeyName="fk_user_role_user_id" />
+            </not>
+        </preConditions>
+        <addForeignKeyConstraint baseTableName="jhi_user_role" baseColumnNames="user_id" constraintName="fk_user_role_user_id" referencedTableName="jhi_user"
+                                 referencedColumnNames="id" />
+    </changeSet>
+
+    <changeSet id="20211021000000-15" author="dls">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(1) FROM jhi_role WHERE name = 'USER' AND customer_id = 1;
+            </sqlCheck>
+        </preConditions>
+        <rollback>
+            <delete tableName="jhi_role">
+                <where>name = 'USER' AND customer_id = 1</where>
+            </delete>
+        </rollback>
+
+        <sql>
+            insert into jhi_role (name, customer_id) VALUES ('USER', 1);
+        </sql>
+    </changeSet>
+
+    <changeSet id="20211021000000-16" author="dls">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(1) FROM jhi_role WHERE name = 'CUSTOMER_ADMIN' AND customer_id = 1;
+            </sqlCheck>
+        </preConditions>
+        <rollback>
+            <delete tableName="jhi_role">
+                <where>name = 'CUSTOMER_ADMIN' AND customer_id = 1</where>
+            </delete>
+        </rollback>
+
+        <sql>
+            insert into jhi_role (name, customer_id) VALUES ('CUSTOMER_ADMIN', 1);
+        </sql>
+
+    </changeSet>
+</databaseChangeLog>

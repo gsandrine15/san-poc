@@ -1,0 +1,9 @@
+id;code;name;description;preview;image;link;system_assigned
+4;clear;CLEAR (External);Online Investigation Solution;;;https://clear.thomsonreuters.com;false
+5;tip;Threat Intelligence Portfolio TIP (External);An automated data collection and discovery tool;;;https://tip.trssllc.com;false
+6;russiadashboard;Russia Dashboard (External);Exploring changes over time for people and organizations;;;https://showcase-staging.datafusion.trssllc.com/#/russia-dashboard;false
+7;rankings;Rankings (External);Exploring connections between countries;;;https://showcase-staging.datafusion.trssllc.com/graphic/1;false
+8;holdingsheatmap;Holdings Heatmap (External);Showcase;;;https://unknown;false
+9;connectionsbyregion;Connections By Region (External);Exploring connections from Russian "oligarch" companies to companies in targeted countries.;;;https://showcase-staging.datafusion.trssllc.com/graphic/5;false
+10;russianholdings;Russia Ownership Holdings (External);Showcase;;;https://unknown;false
+11;womencompanies;Women-owned Companies Supplying Critical Parts (E);Showcase;;;https://unknown;false

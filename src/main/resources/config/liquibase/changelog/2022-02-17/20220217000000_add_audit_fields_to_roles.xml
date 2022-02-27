@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="20220217000000" author="crm">
+        <addColumn tableName="jhi_role">
+            <column name="created_by" type="varchar(50)" />
+            <column name="created_date" type="timestamp" />
+            <column name="last_modified_by" type="varchar(50)" />
+            <column name="last_modified_date" type="timestamp" />
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="20220217000001" author="crm">
+        <sql>
+            UPDATE jhi_role SET created_by='system' WHERE name IN ('USER','CUSTOMER_ADMIN','NO_PERMISSIONS','ADMIN');
+        </sql>
+    </changeSet>
+</databaseChangeLog>

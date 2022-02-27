@@ -1,0 +1,4 @@
+id;code;name;description;preview;image;link;system_assigned
+1;console;Admin Console;The Admin Console;;;/admin-console/user-management;true
+2;news+rss;News & RSS;Real-time News Search, Aggregation, and Alerting;The News & RSS App;;/news-and-rss/channels;false
+3;companydd;Company Due Diligence;Basic Due Diligence Reports;The Company Due Diligence App;;/company-due-diligence;false

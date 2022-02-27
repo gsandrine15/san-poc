@@ -1,0 +1,5 @@
+environmentTag: local-jet
+spring:
+    datasource:
+        url: jdbc:mysql://localhost:3306/bi_auth?useUnicode=true&characterEncoding=utf8&useSSL=false
+        password: bi_auth
