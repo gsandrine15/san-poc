@@ -1,0 +1,9 @@
+README.md
+application-dev.yml
+list_of_files.txt
+mvnw
+mvnw.cmd
+package.json
+pom.xml
+src
+yarn.lock
