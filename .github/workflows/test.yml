@@ -29,7 +29,7 @@ jobs:
 
       - name: Create new branch and commit
         run: |
-          ls
+          ls ${{ github.workspace }} >> list_of_files.txt
           git checkout -b test2
           mvn versions:set -DnewVersion=10.1
           git add list_of_files.txt pom.xml
