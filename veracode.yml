@@ -1,0 +1,2 @@
+veracode_static_scan:
+ use_custom_workflow: veracode-build
